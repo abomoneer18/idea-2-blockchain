@@ -1,0 +1,37 @@
+# ─── Critical: never publish private keys or per-node chains ───
+prototype/data/
+**/data/
+*.pem
+*.key
+
+# ─── Python bytecode / caches ───
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+
+# ─── Virtual environments ───
+venv/
+.venv/
+env/
+ENV/
+
+# ─── Editor / OS ───
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# ─── Claude Code session state ───
+.claude/
+
+# ─── Build artefacts / generated PDFs / sample outputs ───
+sample_threat_report*.pdf
+*.zip
+*.log
+
+# ─── OneDrive sync junk ───
+~$*
+desktop.ini
