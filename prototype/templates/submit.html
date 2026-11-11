@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+{% block title %}Submit Threat{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="eyebrow">Submit a threat</div>
+  <h1>Sign and broadcast a <em>new IOC</em></h1>
+</div>
+
+<div class="card" style="max-width: 820px;">
+  <p class="muted" style="margin-bottom:1.4rem;font-size:0.9rem;line-height:1.6;">
+    The submission is signed with <strong style="color:var(--text);">{{ org.name }}</strong>'s private key,
+    queued, and sealed into a new block via proof-of-work. After mining the block is gossiped
+    to every peer node — they verify the signature and append it to their own chain.
+  </p>
+
+  <form method="post" class="form-grid">
+    <div class="field-row">
+      <div class="field">
+        <label for="threat_type">Threat type</label>
+        <select id="threat_type" name="threat_type" required onchange="toggleCustomType()">
+          <option value="malware">Malware</option>
+          <option value="phishing">Phishing</option>
+          <option value="c2">C2 / Command-and-Control</option>
+          <option value="vulnerability">Vulnerability / CVE</option>
+          <option value="ransomware">Ransomware</option>
+          <option value="ddos">DDoS</option>
+          <option value="other">Other (specify)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="severity">Severity</label>
+        <select id="severity" name="severity" required>
+          <option value="critical">Critical</option>
+          <option value="high" selected>High</option>
+          <option value="medium">Medium</option>
+          <option value="low">Low</option>
+        </select>
+      </div>
+    </div>
+
+    {# Custom-type input — only shown when "Other" is selected. #}
+    <div class="field" id="custom-type-wrap" style="display:none;">
+      <label for="threat_type_custom">Custom threat type name</label>
+      <input id="threat_type_custom" name="threat_type_custom" type="text" maxlength="40"
+             placeholder="e.g. Insider data exfiltration / Supply-chain compromise / Cryptojacking">
+    </div>
+
+    <div class="field">
+      <label for="title">Title</label>
+      <input id="title" name="title" type="text" required maxlength="120"
+             placeholder="e.g. Ryuk variant targeting hospital file shares">
+    </div>
+
+    <div class="field">
+      <label for="description">Description</label>
+      <textarea id="description" name="description" required
+                placeholder="What was observed? Vector? Affected systems? Recommended action?"></textarea>
+    </div>
+
+    <div class="field">
+      <label for="iocs">Indicators of Compromise (one per line)</label>
+      <textarea id="iocs" name="iocs"
+                placeholder="185.220.101.47&#10;malware-c2.xyz&#10;d41d8cd98f00b204e9800998ecf8427e&#10;https://phish.example/login"></textarea>
+    </div>
+
+    <div class="field">
+      <label for="mitigation">Your specific mitigation steps</label>
+      <textarea id="mitigation" name="mitigation"
+                placeholder="What should defenders do for THIS specific incident?&#10;1. Block listed IOCs at the perimeter firewall.&#10;2. Apply patch CVE-2026-XXXX on affected systems.&#10;3. Hunt for the listed file hashes in EDR.&#10;4. Reset credentials for any affected accounts."></textarea>
+      <small style="color:var(--muted);font-size:0.78rem;line-height:1.5;display:block;margin-top:4px;">
+        This is YOUR incident-specific guidance. The system will <strong>also</strong> attach the
+        standard industry playbook for the chosen threat type — see the panel below.
+      </small>
+    </div>
+
+    {# Suggested-mitigations panel — updates live via JS as the threat type changes. #}
+    <div id="standard-playbook" class="card" style="background:var(--bg);border:1px dashed var(--border2);">
+      <h2 style="margin-bottom:0.6rem;">
+        <span id="pb-name">Standard playbook</span>
+        <span class="count" id="pb-summary"></span>
+      </h2>
+      <ul id="pb-steps" style="list-style:none;padding:0;margin:0;"></ul>
+      <div style="margin-top:0.9rem;">
+        <button type="button" class="btn-ghost btn-sm" onclick="copyPlaybookToMitigation()">
+          ↧ Copy playbook into my mitigation
+        </button>
+      </div>
+      <div id="pb-refs-wrap" style="margin-top:0.9rem;border-top:1px solid var(--divider);padding-top:0.7rem;">
+        <div style="font-family:var(--mono);font-size:0.66rem;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted);margin-bottom:0.4rem;">References</div>
+        <ul id="pb-refs" style="list-style:none;padding:0;margin:0;font-size:0.82rem;"></ul>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="github_links">Detection / Trained-Model Links (GitHub, one per line)</label>
+      <textarea id="github_links" name="github_links"
+                placeholder="Leave blank to attach only the standard resources, or paste your own internal repo / detector / model URLs here, one per line."></textarea>
+      <small style="color:var(--muted);font-size:0.78rem;line-height:1.5;display:block;margin-top:4px;">
+        If you leave this blank, the PDF will automatically include the curated standard
+        detection resources for the chosen threat type. See suggestions below.
+      </small>
+    </div>
+
+    {# Suggested detection-models panel — updates live as threat type changes. #}
+    <div id="standard-models" class="card" style="background:var(--bg);border:1px dashed var(--border2);">
+      <h2 style="margin-bottom:0.6rem;">
+        <span id="dm-name">Standard detection resources</span>
+      </h2>
+      <ul id="dm-list" style="list-style:none;padding:0;margin:0;"></ul>
+      <div style="margin-top:0.9rem;">
+        <button type="button" class="btn-ghost btn-sm" onclick="copyModelsToLinks()">
+          ↧ Add these URLs to my links
+        </button>
+      </div>
+    </div>
+
+    <div>
+      <button type="submit" class="btn-primary">Sign · Mine · Broadcast</button>
+      <a href="{{ url_for('dashboard') }}" class="btn-ghost">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // mitigation playbook catalog, embedded server-side
+  const PLAYBOOKS = {{ MITIGATIONS | tojson }};
+
+  function toggleCustomType() {
+    const sel = document.getElementById('threat_type');
+    const wrap = document.getElementById('custom-type-wrap');
+    const input = document.getElementById('threat_type_custom');
+    if (sel.value === 'other') {
+      wrap.style.display = '';
+      input.required = true;
+    } else {
+      wrap.style.display = 'none';
+      input.required = false;
+      input.value = '';
+    }
+  }
+
+  function renderPlaybook() {
+    const sel = document.getElementById('threat_type');
+    const pb = PLAYBOOKS[sel.value] || PLAYBOOKS['other'];
+
+    document.getElementById('pb-name').textContent =
+      'Standard playbook — ' + pb.name;
+    document.getElementById('pb-summary').textContent = pb.summary || '';
+
+    const stepsEl = document.getElementById('pb-steps');
+    stepsEl.innerHTML = '';
+    (pb.steps || []).forEach(step => {
+      const li = document.createElement('li');
+      li.style.cssText = 'padding:6px 0 6px 1.4rem;font-size:0.88rem;line-height:1.55;color:var(--text);position:relative;border-bottom:1px solid var(--divider);';
+      li.innerHTML = '<span style="position:absolute;left:0;color:var(--amber);font-weight:700;">▸</span>' + escapeHtml(step);
+      stepsEl.appendChild(li);
+    });
+    if (stepsEl.lastElementChild) stepsEl.lastElementChild.style.borderBottom = 'none';
+
+    const refsEl = document.getElementById('pb-refs');
+    refsEl.innerHTML = '';
+    (pb.references || []).forEach(r => {
+      const li = document.createElement('li');
+      li.style.cssText = 'padding:3px 0;';
+      li.innerHTML = '<a href="' + escapeAttr(r.url) + '" target="_blank" rel="noopener" style="color:var(--amber);">' + escapeHtml(r.name) + '</a>';
+      refsEl.appendChild(li);
+    });
+
+    // detection models
+    document.getElementById('dm-name').textContent =
+      'Standard detection resources — ' + pb.name;
+    const dmEl = document.getElementById('dm-list');
+    dmEl.innerHTML = '';
+    (pb.detection_models || []).forEach(m => {
+      const li = document.createElement('li');
+      li.style.cssText = 'padding:8px 0;border-bottom:1px solid var(--divider);';
+      li.innerHTML =
+        '<a href="' + escapeAttr(m.url) + '" target="_blank" rel="noopener" ' +
+          'style="font-family:var(--mono);font-size:0.82rem;font-weight:700;color:var(--amber);word-break:break-all;">' +
+          escapeHtml(m.name) + '</a>' +
+        '<div style="font-size:0.8rem;color:var(--muted);line-height:1.5;margin-top:3px;">' +
+          escapeHtml(m.description) + '</div>';
+      dmEl.appendChild(li);
+    });
+    if (dmEl.lastElementChild) dmEl.lastElementChild.style.borderBottom = 'none';
+  }
+
+  function copyPlaybookToMitigation() {
+    const sel = document.getElementById('threat_type');
+    const pb = PLAYBOOKS[sel.value] || PLAYBOOKS['other'];
+    const ta = document.getElementById('mitigation');
+    const lines = (pb.steps || []).map((s, i) => (i + 1) + '. ' + s).join('\n');
+    if (ta.value.trim() && !confirm('Replace your current mitigation text with the standard playbook?')) return;
+    ta.value = lines;
+    ta.focus();
+  }
+
+  function copyModelsToLinks() {
+    const sel = document.getElementById('threat_type');
+    const pb = PLAYBOOKS[sel.value] || PLAYBOOKS['other'];
+    const ta = document.getElementById('github_links');
+    const urls = (pb.detection_models || []).map(m => m.url).join('\n');
+    if (ta.value.trim()) {
+      ta.value = ta.value.trim() + '\n' + urls;
+    } else {
+      ta.value = urls;
+    }
+    ta.focus();
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  function escapeAttr(s) { return escapeHtml(s); }
+
+  // wire the threat-type dropdown to both behaviours
+  document.getElementById('threat_type').addEventListener('change', () => {
+    toggleCustomType();
+    renderPlaybook();
+  });
+
+  toggleCustomType();
+  renderPlaybook();
+</script>
+{% endblock %}

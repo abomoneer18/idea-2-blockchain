@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% from "_threat_row.html" import threat_row with context %}
+{% block title %}Search{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="eyebrow">Search the chain</div>
+  <h1>Look up an <em>IOC</em></h1>
+</div>
+
+<div class="card" style="margin-bottom: 1.2rem;">
+  <form method="get" class="row">
+    <input name="q" value="{{ q }}" type="text" required placeholder="IP, domain, hash, URL, or any text…"
+           style="flex:1;min-width:280px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:0.7rem 0.9rem;color:var(--text);font-family:var(--mono);">
+    <button type="submit" class="btn-primary">Search</button>
+  </form>
+</div>
+
+{% if q %}
+<div class="card">
+  <h2>Results for "{{ q }}" <span class="count">{{ results|length }} match{{ '' if results|length == 1 else 'es' }}</span></h2>
+  {% if not results %}
+    <div class="empty">No threats matched.</div>
+  {% else %}
+    {% for t in results %}{{ threat_row(t) }}{% endfor %}
+  {% endif %}
+</div>
+{% endif %}
+
+{% endblock %}

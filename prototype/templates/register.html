@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<section style="padding-top: 1rem;">
+  <div class="page-header">
+    <div class="eyebrow">Step 1 — Register</div>
+    <h1>Create an <em>organization</em></h1>
+  </div>
+
+  <div class="card" style="max-width: 720px;">
+    <p class="muted" style="margin-bottom: 1.4rem; font-size: 0.9rem; line-height: 1.6;">
+      A 2048-bit RSA keypair is generated for your organization. The
+      <strong style="color:var(--text);">public key</strong> becomes your on-chain identity.
+      The <strong style="color:var(--text);">private key</strong> stays on this node and signs
+      every threat you submit, proving authenticity to the rest of the network.
+    </p>
+
+    <form method="post" class="form-grid">
+      <div class="field">
+        <label for="name">Organization name</label>
+        <input id="name" name="name" type="text" required placeholder="e.g. National CERT, Acme Bank, Memorial Hospital">
+      </div>
+      <div class="field">
+        <label for="sector">Sector</label>
+        <select id="sector" name="sector" required>
+          <option value="Bank/Financial">Bank / Financial</option>
+          <option value="Government/CERT">Government / CERT</option>
+          <option value="Telecom/ISP">Telecom / ISP</option>
+          <option value="Healthcare/Hospital">Healthcare / Hospital</option>
+          <option value="Energy/Utilities">Energy / Utilities</option>
+          <option value="Education/Research">Education / Research</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div>
+        <button type="submit" class="btn-primary">Generate Keypair & Register</button>
+        <a href="{{ url_for('login') }}" class="btn-ghost">Already registered?</a>
+      </div>
+    </form>
+  </div>
+</section>
+
+{% endblock %}

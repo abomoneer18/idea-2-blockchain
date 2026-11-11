@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% from "_threat_row.html" import threat_row with context %}
+{% block title %}Live Feed{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="eyebrow">Dashboard · Node {{ node }}</div>
+  <h1>Live <em>threat feed</em></h1>
+</div>
+
+<div class="stats" style="margin-top:0;">
+  <div class="stat"><div class="stat-label">Blocks</div><div class="stat-value blue">{{ chain_len }}</div></div>
+  <div class="stat"><div class="stat-label">Pending tx</div><div class="stat-value">{{ pending_count }}</div></div>
+  <div class="stat"><div class="stat-label">Peers</div><div class="stat-value teal">{{ peer_count }}</div></div>
+  <div class="stat"><div class="stat-label">Threats on chain</div><div class="stat-value">{{ threats|length }}</div></div>
+</div>
+
+<div class="card">
+  <h2>Recent threats <span class="count">last {{ threats|length }}</span></h2>
+
+  {% if not threats %}
+    <div class="empty">
+      No threats on the chain yet.<br>
+      <a href="{{ url_for('submit_threat') }}" class="btn-primary" style="margin-top:1.2rem;">Submit the first one →</a>
+    </div>
+  {% else %}
+    {% for t in threats %}{{ threat_row(t) }}{% endfor %}
+  {% endif %}
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // soft auto-refresh every 6s so new threats from peers show up
+  setTimeout(() => location.reload(), 6000);
+</script>
+{% endblock %}

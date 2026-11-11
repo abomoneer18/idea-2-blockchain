@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}ThreatChain{% endblock %} — Decentralized Threat Intelligence</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+{# Pages that get the sidebar layout: any dashboard route while logged in. #}
+{% set is_app = session.org_fp and request.endpoint in ['dashboard', 'submit_threat', 'explorer', 'network', 'search'] %}
+
+{% if is_app %}
+
+<div class="app">
+
+  <aside class="sidebar">
+    <a href="{{ url_for('landing') }}" class="brand">
+      <span class="brand-mark">TC</span>
+      <span class="brand-name">Threat<span>Chain</span></span>
+    </a>
+
+    <div class="org-card">
+      <div class="org-name">{{ org.name if org else '—' }}</div>
+      <div class="org-meta">
+        {{ org.sector if org else '' }}<br>
+        {{ org.fingerprint if org else '' }}
+      </div>
+    </div>
+
+    <div class="section-label">Workspace</div>
+    <a href="{{ url_for('dashboard') }}"     class="nav-item {% if request.endpoint == 'dashboard' %}active{% endif %}"><span class="nav-icon">▤</span> Live Feed</a>
+    <a href="{{ url_for('search') }}"        class="nav-item {% if request.endpoint == 'search' %}active{% endif %}"><span class="nav-icon">⌕</span> Search IOCs</a>
+    <a href="{{ url_for('submit_threat') }}" class="nav-item {% if request.endpoint == 'submit_threat' %}active{% endif %}"><span class="nav-icon">+</span> Submit IOC</a>
+
+    <div class="section-label">Network</div>
+    <a href="{{ url_for('explorer') }}" class="nav-item {% if request.endpoint == 'explorer' %}active{% endif %}"><span class="nav-icon">◇</span> Blockchain</a>
+    <a href="{{ url_for('network') }}"  class="nav-item {% if request.endpoint == 'network' %}active{% endif %}"><span class="nav-icon">◎</span> Peers</a>
+
+    <div class="section-label">Account</div>
+    <a href="{{ url_for('logout') }}" class="nav-item"><span class="nav-icon">↶</span> Sign out</a>
+
+    <div class="footer">
+      Node: <strong style="color:var(--text);">{{ node }}</strong><br>
+      May 2026
+    </div>
+  </aside>
+
+  <div class="main-area">
+    <header class="topbar">
+      <div class="breadcrumb">
+        ThreatChain <span class="sep">/</span>
+        <strong>{% if request.endpoint == 'dashboard' %}Live Feed{% elif request.endpoint == 'search' %}Search IOCs{% elif request.endpoint == 'submit_threat' %}Submit IOC{% elif request.endpoint == 'explorer' %}Blockchain{% elif request.endpoint == 'network' %}Peers{% else %}—{% endif %}</strong>
+      </div>
+      <div class="actions">
+        <span class="npill live">● live</span>
+        <span class="npill">node {{ node }}</span>
+      </div>
+    </header>
+
+    <div class="content">
+
+{% else %}
+
+<div class="auth-shell">
+  <header class="auth-topbar">
+    <a href="{{ url_for('landing') }}" class="brand">
+      <span class="brand-mark">TC</span>
+      <span class="brand-name">Threat<span>Chain</span></span>
+    </a>
+    <nav class="nav">
+      <span class="npill live">● live</span>
+      <span class="npill">node {{ node }}</span>
+      {% if session.org_fp %}
+        <a href="{{ url_for('dashboard') }}">Dashboard</a>
+        <a href="{{ url_for('logout') }}">Logout</a>
+      {% else %}
+        <a href="{{ url_for('login') }}">Login</a>
+        <a href="{{ url_for('register') }}" class="btn-primary" style="padding:0.5rem 1rem;">Register Org</a>
+      {% endif %}
+    </nav>
+  </header>
+  <main class="auth-main">
+
+{% endif %}
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, msg in messages %}
+          <div class="flash {{ category }}">{{ msg }}</div>
+        {% endfor %}
+      {% endwith %}
+
+      {% block content %}{% endblock %}
+
+{% if is_app %}
+    </div>{# /content #}
+  </div>{# /main-area #}
+</div>{# /app #}
+{% else %}
+  </main>
+</div>{# /auth-shell #}
+{% endif %}
+
+{% block scripts %}{% endblock %}
+</body>
+</html>

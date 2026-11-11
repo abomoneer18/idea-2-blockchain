@@ -35,3 +35,18 @@ sample_threat_report*.pdf
 # ─── OneDrive sync junk ───
 ~$*
 desktop.ini
+
+# ─── Local-only extras (not part of the project) ───
+node_modules/
+package.json
+package-lock.json
+build_defense_doc.js
+threatchain.html
+style_dark_backup.css
+New folder*/
+threatchain-/
+*.MOV
+*.docx
+*.pptx
+*.pdf
+*.png

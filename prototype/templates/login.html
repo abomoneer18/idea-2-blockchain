@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<section style="padding-top: 1rem;">
+  <div class="page-header">
+    <div class="eyebrow">Step 2 — Login</div>
+    <h1>Act as an <em>organization</em></h1>
+  </div>
+
+  <div class="card" style="max-width: 720px;">
+    {% if not orgs %}
+      <p class="muted">No organizations are registered on this node yet.</p>
+      <a href="{{ url_for('register') }}" class="btn-primary" style="margin-top:1rem;">Register one →</a>
+    {% else %}
+      <p class="muted" style="margin-bottom: 1.4rem; font-size: 0.9rem; line-height: 1.6;">
+        Pick which registered organization you want to act as. Only this node holds the
+        private keys for these orgs — other nodes know them by their public key only.
+      </p>
+      <form method="post" class="form-grid">
+        <div class="field">
+          <label for="org_fp">Organization</label>
+          <select id="org_fp" name="org_fp" required>
+            {% for fp, o in orgs.items() %}
+              <option value="{{ fp }}">{{ o.name }} — {{ o.sector }} ({{ fp }})</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <button type="submit" class="btn-primary">Login</button>
+          <a href="{{ url_for('register') }}" class="btn-ghost">Register another</a>
+        </div>
+      </form>
+    {% endif %}
+  </div>
+</section>
+
+{% endblock %}

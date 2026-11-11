@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<section class="hero">
+  <div class="hero-left">
+    <div class="hero-eyebrow">Decentralized · Tamper-Evident · No Single Owner</div>
+    <h1>
+      Threat intelligence,<br>
+      <em>on a blockchain</em><br>
+      <span class="accent">— shared by everyone, owned by no one.</span>
+    </h1>
+    <p class="lede">
+      ThreatChain replaces siloed threat-intel feeds with a peer-to-peer ledger. Every
+      organization (bank, CERT, ISP, hospital) submits cryptographically signed threat
+      data. Every node holds a full copy. Consensus seals each block — nobody can fake
+      a threat, delete evidence, or take the platform down.
+    </p>
+    <div class="hero-cta">
+      {% if session.org_fp %}
+        <a href="{{ url_for('dashboard') }}" class="btn-primary">Launch Dashboard →</a>
+      {% else %}
+        <a href="{{ url_for('register') }}" class="btn-primary">Register Organization</a>
+        <a href="{{ url_for('login') }}" class="btn-ghost">Login</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="hero-visual">
+    <h3>Network · {{ org_count }} organizations</h3>
+    <div class="network-nodes">
+      <div class="node-chip">
+        <span class="node-dot"></span>
+        <span class="node-name">Jordan CERT</span>
+        <span class="node-role">Government</span>
+      </div>
+      <div class="node-chip">
+        <span class="node-dot"></span>
+        <span class="node-name">Acme Bank</span>
+        <span class="node-role">Financial</span>
+      </div>
+      <div class="node-chip">
+        <span class="node-dot"></span>
+        <span class="node-name">Memorial Hospital</span>
+        <span class="node-role">Healthcare</span>
+      </div>
+      <div class="node-chip">
+        <span class="node-dot"></span>
+        <span class="node-name">Zain Telecom</span>
+        <span class="node-role">Telecom / ISP</span>
+      </div>
+    </div>
+    <div class="process-flow">
+      <span class="step">SIGN</span>
+      <span class="arrow">→</span>
+      <span class="step">MINE</span>
+      <span class="arrow">→</span>
+      <span class="step">BROADCAST</span>
+      <span class="arrow">→</span>
+      <span class="step">VERIFY</span>
+    </div>
+  </div>
+</section>
+
+<div class="stats">
+  <div class="stat">
+    <div class="stat-label">This node</div>
+    <div class="stat-value mono">{{ node }}</div>
+  </div>
+  <div class="stat">
+    <div class="stat-label">Blocks in chain</div>
+    <div class="stat-value amber">{{ chain_len }}</div>
+  </div>
+  <div class="stat">
+    <div class="stat-label">Threats on ledger</div>
+    <div class="stat-value rose">{{ threat_count }}</div>
+  </div>
+  <div class="stat">
+    <div class="stat-label">Registered orgs</div>
+    <div class="stat-value">{{ org_count }}</div>
+  </div>
+</div>
+
+<div class="explainer">
+  <div class="card">
+    <h3>The problem</h3>
+    <p>
+      When one company discovers a new malware or phishing campaign, that knowledge
+      stays locked inside. Other organizations face the same threat blind. Central
+      feeds exist but create a trust problem and a single point of failure.
+    </p>
+  </div>
+  <div class="card">
+    <h3>The solution</h3>
+    <p>
+      A blockchain shared by every participating organization. Each one runs a node,
+      holds a full copy of the chain, and helps validate new entries. No central
+      server, no single owner, no one to compromise.
+    </p>
+  </div>
+  <div class="card">
+    <h3>How it stays trustworthy</h3>
+    <p>
+      Every threat submission is signed with the submitter's private key. Every block
+      is sealed with proof-of-work. Tampering with one block invalidates every block
+      after it, and every other node will reject the chain.
+    </p>
+  </div>
+  <div class="card">
+    <h3>What's on the chain</h3>
+    <p>
+      Threat type, severity, title, description, and a list of indicators of
+      compromise (IPs, domains, file hashes). Every record is timestamped and
+      cryptographically attributed to the submitting organization.
+    </p>
+  </div>
+</div>
+
+{% endblock %}

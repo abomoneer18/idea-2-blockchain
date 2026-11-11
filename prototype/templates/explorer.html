@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% from "_threat_row.html" import threat_row with context %}
+{% block title %}Blockchain Explorer{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="eyebrow">Blockchain explorer</div>
+  <h1>
+    The full <em>chain</em>
+    {% if valid %}
+      <span class="npill live" style="vertical-align:middle;font-size:0.7rem;margin-left:0.6rem;">● valid</span>
+    {% else %}
+      <span class="npill bad" style="vertical-align:middle;font-size:0.7rem;margin-left:0.6rem;">● invalid</span>
+    {% endif %}
+  </h1>
+</div>
+
+{% for b in blocks %}
+  <div class="block">
+    <div class="block-header">
+      <div class="block-index">#{{ b.index }}</div>
+      <div class="block-hash">
+        hash <strong>{{ b.hash }}</strong><br>
+        <span class="muted">prev {{ b.previous_hash }}</span>
+      </div>
+      <div class="block-meta">
+        nonce {{ b.nonce }}<br>
+        {{ b.timestamp | int | timestamp }}
+      </div>
+    </div>
+    <div class="block-body">
+      <div class="block-tx-count">{{ b.transactions|length }} transaction{{ '' if b.transactions|length == 1 else 's' }}</div>
+      {% if b.transactions %}
+        {% for t in b.transactions %}{{ threat_row(t) }}{% endfor %}
+      {% else %}
+        <div class="muted mono" style="font-size:0.8rem;">— Genesis block —</div>
+      {% endif %}
+    </div>
+  </div>
+{% endfor %}
+
+{% endblock %}

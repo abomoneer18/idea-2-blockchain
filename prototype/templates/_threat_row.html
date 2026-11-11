@@ -1,0 +1,86 @@
+{# Reusable threat row used by dashboard, explorer, and search.
+   Usage:  {% from "_threat_row.html" import threat_row %}  {{ threat_row(t) }} #}
+
+{% macro threat_row(t) %}
+<div class="threat">
+  <div class="threat-time mono">{{ t.timestamp | int | timestamp }}</div>
+  <div>
+    <div class="threat-title">{{ t.title }}</div>
+    <div class="threat-desc">{{ t.description }}</div>
+    {% if t.iocs %}
+      <div class="threat-iocs">
+        {% for ioc in t.iocs %}<span class="ioc">{{ ioc }}</span>{% endfor %}
+      </div>
+    {% endif %}
+
+    {% set _playbook = get_playbook(t.threat_type) %}
+    <details class="threat-extra">
+      <summary>Mitigation &amp; detection resources</summary>
+
+      {% if t.mitigation %}
+        <div class="extra-label">SUBMITTER'S SPECIFIC MITIGATION</div>
+        <div class="extra-body">{{ t.mitigation | replace('\n', '<br>') | safe }}</div>
+      {% endif %}
+
+      {% if _playbook %}
+        <div class="extra-label">STANDARD PLAYBOOK — {{ _playbook.name }}</div>
+        <div class="extra-body" style="font-style:italic;color:var(--muted);">{{ _playbook.summary }}</div>
+        <ul class="extra-steps">
+          {% for step in _playbook.steps %}
+            <li>{{ step }}</li>
+          {% endfor %}
+        </ul>
+        {% if _playbook.references %}
+          <div class="extra-label" style="margin-top:0.8rem;">AUTHORITATIVE REFERENCES</div>
+          <ul class="extra-links">
+            {% for r in _playbook.references %}
+              <li><a href="{{ r.url }}" target="_blank" rel="noopener">{{ r.name }}</a></li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      {% endif %}
+
+      {% if t.github_links %}
+        <div class="extra-label">DETECTION / TRAINED MODELS (submitter-provided)</div>
+        <ul class="extra-links">
+          {% for link in t.github_links %}
+            <li><a href="{{ link }}" target="_blank" rel="noopener">{{ link }}</a></li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+
+      {% if _playbook and _playbook.detection_models %}
+        <div class="extra-label">STANDARD DETECTION RESOURCES — {{ _playbook.name }}</div>
+        <ul class="extra-models">
+          {% for m in _playbook.detection_models %}
+            <li>
+              <a href="{{ m.url }}" target="_blank" rel="noopener">{{ m.name }}</a>
+              <span class="model-desc">{{ m.description }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </details>
+
+    <div class="threat-actions">
+      <a class="btn-ghost btn-sm"
+         href="{{ url_for('threat_report', threat_id=t.id) }}"
+         target="_blank" rel="noopener">↓ Download PDF Report</a>
+    </div>
+  </div>
+  <div><span class="severity {{ t.severity }}">{{ t.severity }}</span></div>
+  <div>
+    <span class="threat-type">
+      {% if t.threat_type == 'other' and t.threat_type_custom %}
+        {{ t.threat_type_custom }}
+      {% else %}
+        {{ t.threat_type }}
+      {% endif %}
+    </span>
+  </div>
+  <div class="threat-submitter">
+    <strong>{{ t.submitter_name }}</strong>
+    <span>sig ✓ {{ t.signature[:12] }}…</span>
+  </div>
+</div>
+{% endmacro %}

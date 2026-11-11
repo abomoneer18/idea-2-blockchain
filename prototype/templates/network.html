@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Network{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="eyebrow">Peer network</div>
+  <h1>P2P <em>nodes</em></h1>
+</div>
+
+<div class="card" style="margin-bottom: 1.2rem;">
+  <h2>This node</h2>
+  <p class="mono" style="font-size:0.9rem;">{{ public_url }}</p>
+  <p class="muted" style="font-size:0.85rem;margin-top:0.4rem;">
+    Other nodes can join the network by adding this URL as a peer.
+  </p>
+</div>
+
+<div class="card" style="margin-bottom: 1.2rem;">
+  <h2>Add peer</h2>
+  <form method="post" class="row" style="margin-top: 0.6rem;">
+    <input type="hidden" name="action" value="add">
+    <input name="peer_url" type="url" required placeholder="http://127.0.0.1:5001"
+           style="flex:1;min-width:280px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:0.7rem 0.9rem;color:var(--text);font-family:var(--mono);">
+    <button type="submit" class="btn-primary">Connect</button>
+  </form>
+  <form method="post" style="margin-top: 0.8rem;">
+    <input type="hidden" name="action" value="sync">
+    <button type="submit" class="btn-ghost">Trigger consensus sync now</button>
+  </form>
+</div>
+
+<div class="card">
+  <h2>Connected peers <span class="count">{{ peers|length }}</span></h2>
+  {% if not peers %}
+    <div class="empty">
+      No peers yet.<br>
+      Launch a second node and connect: <code class="mono" style="color:var(--blue);">python app.py --node bob --port 5001 --peer {{ public_url }}</code>
+    </div>
+  {% else %}
+    {% for p in peers %}
+      <div class="peer-row">
+        <div class="peer-url">{{ p }}</div>
+        <div><span class="peer-status up" id="status-{{ loop.index }}" data-url="{{ p }}">checking…</span></div>
+        <form method="post">
+          <input type="hidden" name="action" value="remove">
+          <input type="hidden" name="peer_url" value="{{ p }}">
+          <button type="submit" class="btn-danger">Remove</button>
+        </form>
+      </div>
+    {% endfor %}
+  {% endif %}
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.querySelectorAll('.peer-status[data-url]').forEach(async el => {
+  try {
+    const r = await fetch(el.dataset.url + '/api/stats', { mode: 'cors' });
+    if (r.ok) {
+      const s = await r.json();
+      el.textContent = `up · ${s.blocks} blk · ${s.threats} thr`;
+      el.classList.add('up'); el.classList.remove('down');
+    } else { throw new Error(); }
+  } catch (e) {
+    el.textContent = 'unreachable';
+    el.classList.remove('up'); el.classList.add('down');
+  }
+});
+</script>
+{% endblock %}

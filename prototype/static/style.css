@@ -4,48 +4,48 @@
    centered layout for landing/auth pages. */
 
 :root {
-  /* surfaces */
-  --bg: #1a1822;            /* warm dark slate (not pure black) */
-  --bg2: #221f2c;           /* slightly lighter — main content panel */
-  --surface: #2a2636;       /* card surface */
-  --surface2: #322d40;      /* hover / nested surface */
-  --surface3: #3a354a;
+  /* surfaces — LIGHT theme (warm) */
+  --bg: #f4f2ec;            /* warm light background */
+  --bg2: #faf8f3;           /* sidebar / topbar panel — lighter */
+  --surface: #ffffff;       /* card surface */
+  --surface2: #f0ece4;      /* hover / nested surface */
+  --surface3: #e7e2d8;
 
   /* borders */
-  --border: rgba(245, 158, 11, 0.08);
-  --border2: rgba(245, 158, 11, 0.18);
-  --divider: rgba(245, 241, 232, 0.06);
+  --border: rgba(82, 60, 18, 0.12);
+  --border2: rgba(82, 60, 18, 0.26);
+  --divider: rgba(40, 30, 15, 0.10);
 
-  /* primary palette — AMBER + ROSE (no blue, no green) */
-  --amber: #f59e0b;          /* primary brand */
-  --amber-soft: #fbbf24;
-  --amber-dim: rgba(245, 158, 11, 0.12);
-  --amber-strong: #d97706;
+  /* primary palette — AMBER + ROSE (darkened so they read on light) */
+  --amber: #b45309;          /* primary brand */
+  --amber-soft: #d97706;
+  --amber-dim: rgba(245, 158, 11, 0.14);
+  --amber-strong: #92400e;
 
-  --rose: #fb7185;           /* accent */
-  --rose-soft: #fda4af;
-  --rose-dim: rgba(251, 113, 133, 0.12);
-  --rose-strong: #e11d48;
+  --rose: #e11d48;           /* accent */
+  --rose-soft: #f43f5e;
+  --rose-dim: rgba(251, 113, 133, 0.14);
+  --rose-strong: #be123c;
 
-  --violet: #a855f7;         /* tertiary accent — sparingly */
+  --violet: #7c3aed;         /* tertiary accent — sparingly */
   --violet-dim: rgba(168, 85, 247, 0.12);
 
-  /* status / severity (no green) */
-  --critical: #ef4444;
-  --critical-dim: rgba(239, 68, 68, 0.14);
-  --high: #fb923c;
-  --high-dim: rgba(251, 146, 60, 0.14);
-  --medium: #facc15;
-  --medium-dim: rgba(250, 204, 21, 0.14);
-  --low: #c4b5fd;
-  --low-dim: rgba(196, 181, 253, 0.14);
+  /* status / severity (darkened for light) */
+  --critical: #dc2626;
+  --critical-dim: rgba(239, 68, 68, 0.12);
+  --high: #c2410c;
+  --high-dim: rgba(251, 146, 60, 0.16);
+  --medium: #a16207;
+  --medium-dim: rgba(250, 204, 21, 0.18);
+  --low: #7c3aed;
+  --low-dim: rgba(168, 85, 247, 0.12);
 
-  /* text */
-  --text: #f5f1e8;          /* warm cream — easy to read */
-  --text-strong: #ffffff;
-  --muted: #a8a29e;         /* warm gray */
-  --muted2: #78716c;
-  --ink: #1c1917;           /* dark text on light surfaces (rare) */
+  /* text — dark on light */
+  --text: #2a2620;          /* warm near-black — easy to read */
+  --text-strong: #15110b;
+  --muted: #6c6457;         /* warm gray (readable on light) */
+  --muted2: #8a8175;
+  --ink: #1c1917;           /* dark text on bright fills */
 
   /* keep legacy variable names so any existing inline styles still work */
   --blue: var(--amber);     /* repoint blue → amber */
@@ -54,11 +54,9 @@
   --teal-dim: var(--rose-dim);
   --red: var(--critical);
   --red-dim: var(--critical-dim);
-  --amber-dim: rgba(245, 158, 11, 0.12);  /* override (already set above) */
   --green: var(--low);
   --green-dim: var(--low-dim);
   --navy: var(--text-strong);
-  --surface3: var(--surface3);
 
   /* fonts */
   --mono: 'JetBrains Mono', 'Space Mono', monospace;
@@ -129,7 +127,7 @@ a:hover { color: var(--amber-soft); }
   background: linear-gradient(135deg, var(--amber) 0%, var(--rose) 100%);
   display: flex; align-items: center; justify-content: center;
   font-family: var(--mono); font-size: 14px; font-weight: 700;
-  color: var(--bg); box-shadow: 0 4px 14px rgba(245, 158, 11, 0.22);
+  color: #fff; box-shadow: 0 4px 14px rgba(245, 158, 11, 0.22);
 }
 .sidebar .brand-name {
   font-family: var(--display); font-weight: 800;
@@ -192,7 +190,7 @@ a:hover { color: var(--amber-soft); }
 .topbar {
   display: flex; align-items: center; justify-content: space-between;
   padding: 1rem 1.8rem;
-  background: rgba(26, 24, 34, 0.85);
+  background: rgba(250, 248, 243, 0.85);
   backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--divider);
   position: sticky; top: 0; z-index: 50;
@@ -244,7 +242,7 @@ a:hover { color: var(--amber-soft); }
   width: 32px; height: 32px; border-radius: 8px;
   background: linear-gradient(135deg, var(--amber), var(--rose));
   display: flex; align-items: center; justify-content: center;
-  font-family: var(--mono); font-size: 13px; font-weight: 700; color: var(--bg);
+  font-family: var(--mono); font-size: 13px; font-weight: 700; color: #fff;
 }
 .auth-topbar .brand-name {
   font-family: var(--display); font-weight: 800; color: var(--text-strong);
@@ -256,6 +254,8 @@ a:hover { color: var(--amber-soft); }
   color: var(--muted); font-weight: 500; font-size: 0.92rem;
 }
 .auth-topbar .nav a:hover { color: var(--text); }
+.auth-topbar .nav a.btn-primary { color: #fff; }
+.auth-topbar .nav a.btn-primary:hover { color: #fff; }
 
 .auth-main {
   flex: 1;
@@ -432,7 +432,7 @@ button.btn-primary, button.btn-ghost {
   border: 1px solid transparent;
 }
 .btn-primary {
-  background: var(--amber); color: var(--bg);
+  background: var(--amber); color: #fff;
   box-shadow: 0 1px 2px rgba(245, 158, 11, 0.25), 0 4px 14px rgba(245, 158, 11, 0.18);
 }
 .btn-primary:hover {
